@@ -16,8 +16,15 @@ in interviews.
 
 - **Spring Boot 4.0** on **Java 21 LTS**
 - **Gradle** with **Kotlin DSL** (`build.gradle.kts`), Gradle 9 wrapper
+- **Foojay toolchain resolver** in `settings.gradle.kts` so Gradle auto-provisions
+  the Java 21 toolchain regardless of the JDK the developer happens to have installed
+  (this machine ships JDK 25; the build still targets 21). Reproducible builds without
+  a "you must install exactly JDK 21" prerequisite.
 - **Flyway 10** with `flyway-database-postgresql` for migrations
-- **Testcontainers** with `@ServiceConnection` for integration tests (real Postgres, no mocks)
+- **Testcontainers 2.0** with `@ServiceConnection` for integration tests (real Postgres,
+  no mocks). Note: Testcontainers 2.0 renamed every module with a `testcontainers-`
+  prefix (`testcontainers-junit-jupiter`, `testcontainers-postgresql`) and its version is
+  pinned via an explicit `testcontainers-bom`, aligned with the Boot-managed version.
 - Base package: `io.fraudfort.orchestrator`
 
 Java 21's virtual threads are enabled for the web layer (`spring.threads.virtual.enabled`)

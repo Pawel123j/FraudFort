@@ -26,8 +26,28 @@ curl http://localhost:8080/actuator/health
 ./gradlew test
 ```
 
-Integration tests start a real PostgreSQL via Testcontainers, so Docker must be
-running. No mocks of the database — see ADR 0002 for the rationale.
+Integration tests start a real PostgreSQL via Testcontainers, so **Docker must be
+running** before you run them. No mocks of the database — see ADR 0002 for the rationale.
+
+## Troubleshooting
+
+**`PKIX path building failed` / `unable to find valid certification path` on dependency
+download.** You're behind a TLS-intercepting proxy (common in banking — Zscaler, etc.).
+The proxy's CA is trusted by the OS but not by the JVM's bundled truststore. Point the
+JVM at the OS trust store, e.g. on Windows:
+
+```bash
+./gradlew test -Djavax.net.ssl.trustStoreType=Windows-ROOT
+```
+
+or set it persistently in `~/.gradle/gradle.properties`:
+
+```properties
+systemProp.javax.net.ssl.trustStoreType=Windows-ROOT
+```
+
+**First build is slow.** Gradle downloads its distribution, the Java 21 toolchain (via the
+Foojay resolver), and all dependencies on the first run. Subsequent runs are cached.
 
 ## Build
 
