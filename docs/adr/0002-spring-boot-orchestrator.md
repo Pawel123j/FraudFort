@@ -2,6 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-06-10
+**Update 2026-06-10:** target Spring Boot version bumped from 3.5 to 4.0 — see "Version pick" below.
 
 ## Context
 
@@ -13,15 +14,24 @@ in interviews.
 
 ## Decision
 
-- **Spring Boot 3.5** on **Java 21 LTS**
-- **Gradle** with **Kotlin DSL** (`build.gradle.kts`)
-- **Flyway 10** for database migrations
-- **Testcontainers** for integration tests (real Postgres, not mocks)
+- **Spring Boot 4.0** on **Java 21 LTS**
+- **Gradle** with **Kotlin DSL** (`build.gradle.kts`), Gradle 9 wrapper
+- **Flyway 10** with `flyway-database-postgresql` for migrations
+- **Testcontainers** with `@ServiceConnection` for integration tests (real Postgres, no mocks)
 - Base package: `io.fraudfort.orchestrator`
 
-Java 21's virtual threads are enabled for the web layer — orchestrator calls are I/O
-heavy (scoring service, Postgres, Redis), which is exactly the workload virtual
-threads are designed for.
+Java 21's virtual threads are enabled for the web layer (`spring.threads.virtual.enabled`)
+— orchestrator calls are I/O heavy (scoring service, Postgres, Redis), which is exactly
+the workload virtual threads are designed for.
+
+### Version pick
+
+The initial proposal targeted Spring Boot 3.5. When generating the scaffold via Spring
+Initializr the default offered was 4.0.6, which by mid-2026 is the mainstream baseline
+for new projects. 4.0 introduces modular per-area test starters (`spring-boot-starter-webmvc-test`,
+`-data-jpa-test`, ...) replacing the catch-all `spring-boot-starter-test` — this is what
+the build file reflects. Staying on the Initializr default avoids fighting the tooling for
+no real upside and lines the project up with a 4.x baseline for future stages.
 
 ## Consequences
 

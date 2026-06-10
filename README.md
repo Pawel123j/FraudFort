@@ -16,7 +16,7 @@ flowchart LR
     API[Client / REST]
     GEN["Transaction Generator<br/>(Python)"]
     KAFKA[("Kafka<br/>tx events")]
-    ORCH["Orchestrator<br/>Spring Boot · Java 21"]
+    ORCH["Orchestrator<br/>Spring Boot 4 · Java 21"]
     SCORE["Scoring Service<br/>FastAPI · Python"]
     DECISION{{"Decision Engine<br/>rules + ML score"}}
     PG[("PostgreSQL<br/>transactions, alerts")]
@@ -71,7 +71,7 @@ scoring distributions over time and raises alerts when distributional drift exce
 
 | Layer | Choice |
 |---|---|
-| Orchestrator | Spring Boot 3.5 · Java 21 · Gradle (Kotlin DSL) |
+| Orchestrator | Spring Boot 4.0 · Java 21 · Gradle (Kotlin DSL) |
 | Scoring service | FastAPI · Python 3.12 · uv |
 | ML model | scikit-learn · XGBoost · SHAP · Optuna (integrated at stage 7) |
 | Storage | PostgreSQL 16 · Redis 7.4 |
