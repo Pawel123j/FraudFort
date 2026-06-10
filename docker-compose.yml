@@ -40,6 +40,23 @@ services:
     networks:
       - fraudfort
 
+  scoring:
+    build:
+      context: ./services/scoring
+    image: fraudfort/scoring:dev
+    container_name: fraudfort-scoring
+    restart: unless-stopped
+    ports:
+      - "${SCORING_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - fraudfort
+
 volumes:
   postgres_data:
   redis_data:
