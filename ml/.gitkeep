@@ -1,0 +1,2 @@
+# Hooks to MLflow registry, training artifacts, model versioning notes.   [Etap 7]
+# The production model lives in MLflow; this folder holds repo-side integration code.

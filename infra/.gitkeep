@@ -1,0 +1,4 @@
+# Infrastructure manifests (everything that isn't application code):
+#   prometheus/   scrape config + alert rules                          [Etap 8]
+#   grafana/      dashboards-as-code (JSON)                            [Etap 8]
+#   k8s/          Kubernetes manifests — base + overlays               [Etap 8]

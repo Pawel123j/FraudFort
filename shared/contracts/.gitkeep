@@ -1,0 +1,3 @@
+# OpenAPI / JSON schemas shared between services.
+#   transaction.openapi.yaml — single source of truth for the Transaction DTO,
+#   used to generate clients in both orchestrator (Spring) and scoring (FastAPI).

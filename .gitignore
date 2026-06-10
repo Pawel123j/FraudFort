@@ -1,0 +1,86 @@
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === IDE ===
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+.factorypath
+.vs/
+*.swp
+
+# === Env ===
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# === Java / Gradle ===
+.gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+out/
+bin/
+*.class
+hs_err_pid*
+replay_pid*
+
+# === Maven (in case anyone reaches for it) ===
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+*.egg-info/
+dist/
+.tox/
+
+# === Node ===
+node_modules/
+.next/
+.nuxt/
+.pnpm-store/
+.npm/
+.yarn/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === Docker ===
+*.pid
+
+# === Logs ===
+logs/
+*.log
+
+# === Local secrets / credentials ===
+secrets/
+*.pem
+*.key
+!**/test/**/*.pem
+!**/test/**/*.key

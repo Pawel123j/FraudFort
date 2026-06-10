@@ -1,0 +1,23 @@
+# Force LF for cross-platform files so Windows doesn't silently swap to CRLF.
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.jar binary
+*.class binary
+*.zip binary
+*.gz binary
+
+# Shell scripts: always LF
+*.sh text eol=lf
+gradlew text eol=lf
+
+# Windows scripts: always CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+gradlew.bat text eol=crlf

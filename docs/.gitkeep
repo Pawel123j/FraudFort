@@ -1,0 +1,4 @@
+# Documentation will live here:
+#   architecture.md   high-level system overview + diagrams
+#   runbook.md        local dev commands, troubleshooting
+#   adr/              architecture decision records

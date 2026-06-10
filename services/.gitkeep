@@ -1,0 +1,6 @@
+# Deployable services live here. Each has its own Dockerfile + README.
+#   orchestrator/     Spring Boot (Java 21) — main API + decision engine
+#   scoring/          FastAPI (Python 3.12) — ML scoring               [Etap 2]
+#   tx-generator/     Synthetic transaction producer for Kafka         [Etap 4]
+#   drift-monitor/    Drift detection (PSI/KS/JS)                      [Etap 7]
+#   frontend/         React + TS + Vite — SOC analyst panel            [Etap 5]
