@@ -22,6 +22,13 @@ spring:
     virtual:
       enabled: true
 
+fraudfort:
+  scoring:
+    # Scoring service base URL. Overridden to http://scoring:8000 inside compose.
+    base-url: ${SCORING_BASE_URL:http://localhost:8000}
+    connect-timeout: 200ms
+    read-timeout: 1s
+
 server:
   port: ${ORCHESTRATOR_PORT:8080}
   shutdown: graceful

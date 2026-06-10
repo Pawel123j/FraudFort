@@ -29,12 +29,13 @@ public class TransactionController {
 
     @PostMapping
     public ResponseEntity<TransactionResponse> create(@Valid @RequestBody CreateTransactionRequest request) {
-        Transaction created = service.create(request);
+        ScoredTransaction result = service.create(request);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(created.getId())
+                .buildAndExpand(result.transaction().getId())
                 .toUri();
-        return ResponseEntity.created(location).body(TransactionResponse.from(created));
+        return ResponseEntity.created(location)
+                .body(TransactionResponse.from(result.transaction(), result.score()));
     }
 
     @GetMapping("/{id}")
