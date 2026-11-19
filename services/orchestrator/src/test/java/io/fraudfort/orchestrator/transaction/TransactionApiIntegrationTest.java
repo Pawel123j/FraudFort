@@ -20,9 +20,13 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -47,6 +51,15 @@ class TransactionApiIntegrationTest {
     @MockitoBean
     private ScoringClient scoringClient;
 
+    static final String CLIENT = "client-a";
+
+    static RequestPostProcessor client(String subject, String... scopes) {
+        return jwt().jwt(j -> j.subject(subject)).authorities(
+                java.util.Arrays.stream(scopes)
+                        .<org.springframework.security.core.GrantedAuthority>map(s -> new SimpleGrantedAuthority("SCOPE_" + s))
+                        .toList());
+    }
+
     @BeforeEach
     void cleanDb() {
         repository.deleteAll();
@@ -70,7 +83,7 @@ class TransactionApiIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/v1/transactions")
+        mockMvc.perform(post("/api/v1/transactions").with(client(CLIENT, "transactions:write"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
@@ -99,7 +112,7 @@ class TransactionApiIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/v1/transactions")
+        mockMvc.perform(post("/api/v1/transactions").with(client(CLIENT, "transactions:write"))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(badJson))
                 .andExpect(status().isBadRequest())
@@ -110,12 +123,12 @@ class TransactionApiIntegrationTest {
     @Test
     void getByIdReturnsTransaction() throws Exception {
         Transaction saved = repository.save(new Transaction(
-                UUID.randomUUID(), "card-1", "cust-1",
+                UUID.randomUUID(), CLIENT, "card-1", "cust-1",
                 new BigDecimal("42.00"), "USD", "5411", "US",
                 "dev-1", Instant.parse("2026-06-10T08:00:00Z")
         ));
 
-        mockMvc.perform(get("/api/v1/transactions/" + saved.getId()))
+        mockMvc.perform(get("/api/v1/transactions/" + saved.getId()).with(client(CLIENT, "transactions:read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(saved.getId().toString()))
                 .andExpect(jsonPath("$.amount").value(42.00))
@@ -124,7 +137,7 @@ class TransactionApiIntegrationTest {
 
     @Test
     void getByUnknownIdReturns404() throws Exception {
-        mockMvc.perform(get("/api/v1/transactions/" + UUID.randomUUID()))
+        mockMvc.perform(get("/api/v1/transactions/" + UUID.randomUUID()).with(client(CLIENT, "transactions:read")))
                 .andExpect(status().isNotFound());
     }
 
@@ -132,13 +145,13 @@ class TransactionApiIntegrationTest {
     void listReturnsPagedResults() throws Exception {
         for (int i = 0; i < 3; i++) {
             repository.save(new Transaction(
-                    UUID.randomUUID(), "card-" + i, "cust-" + i,
+                    UUID.randomUUID(), CLIENT, "card-" + i, "cust-" + i,
                     new BigDecimal("10.00"), "EUR", "5411", "PL",
                     null, Instant.parse("2026-06-10T08:00:00Z")
             ));
         }
 
-        mockMvc.perform(get("/api/v1/transactions"))
+        mockMvc.perform(get("/api/v1/transactions").with(client(CLIENT, "transactions:read")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(3)))
                 .andExpect(jsonPath("$.totalElements").value(3));

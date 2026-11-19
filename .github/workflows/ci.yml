@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  orchestrator:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/orchestrator
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+      # Testcontainers (Postgres) uses the runner's Docker daemon.
+      - run: ./gradlew test --no-daemon
+
+  scoring:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/scoring
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: uv run --frozen python -m pytest -q
+      - name: Dependency audit (locked versions)
+        run: |
+          uv export --frozen --no-hashes --format requirements-txt > /tmp/requirements.txt
+          uvx pip-audit --no-deps --disable-pip -r /tmp/requirements.txt

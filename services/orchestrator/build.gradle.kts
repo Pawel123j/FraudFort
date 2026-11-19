@@ -22,8 +22,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
+    // FF-01: OAuth2 resource server (JWT) — uwierzytelnienie i autoryzacja API transakcji.
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    // Spring Boot 4 przeniósł autokonfigurację RestClient.Builder do osobnego modułu;
+    // bez niego kontekst nie startuje (ScoringClientConfig wstrzykuje RestClient.Builder).
+    implementation("org.springframework.boot:spring-boot-starter-restclient")
     implementation("org.flywaydb:flyway-database-postgresql")
     runtimeOnly("org.postgresql:postgresql")
 
@@ -32,6 +37,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-flyway-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     // Spring Boot 4.0.6 manages testcontainers.version (2.0.5) but the
     // dependency-management plugin doesn't propagate it to the individual

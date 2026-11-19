@@ -4,7 +4,8 @@ spring:
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:fraudfort}
     username: ${POSTGRES_USER:fraudfort}
-    password: ${POSTGRES_PASSWORD:fraudfort_dev}
+    # Bez wartości domyślnej (FF-03): hasło musi przyjść ze środowiska.
+    password: ${POSTGRES_PASSWORD}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
@@ -21,8 +22,24 @@ spring:
   threads:
     virtual:
       enabled: true
+  data:
+    web:
+      pageable:
+        max-page-size: 100
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # FF-01: wystawca tokenów (np. Keycloak/Auth0/Entra ID). Wymagany — brak wartości
+          # domyślnej, więc usługa nie startuje bez skonfigurowanego dostawcy tożsamości.
+          issuer-uri: ${FRAUDFORT_JWT_ISSUER_URI:}
+          # Opcjonalnie: jawny JWKS, gdy discovery wystawcy jest niedostępne.
+          jwk-set-uri: ${FRAUDFORT_JWT_JWK_SET_URI:}
 
 fraudfort:
+  security:
+    jwt:
+      audience: ${FRAUDFORT_JWT_AUDIENCE:}
   scoring:
     # Scoring service base URL. Overridden to http://scoring:8000 inside compose.
     base-url: ${SCORING_BASE_URL:http://localhost:8000}
@@ -37,7 +54,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: health,info,metrics,prometheus  # metrics/prometheus wymagają SCOPE_metrics:read
   endpoint:
     health:
       probes:
@@ -47,4 +64,5 @@ management:
 logging:
   level:
     root: INFO
-    io.fraudfort: DEBUG
+    # DEBUG tylko na żądanie (FRAUDFORT_LOG_LEVEL=DEBUG) — nie domyślnie w każdym środowisku.
+    io.fraudfort: ${FRAUDFORT_LOG_LEVEL:INFO}
