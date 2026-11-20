@@ -156,4 +156,33 @@ class TransactionApiIntegrationTest {
                 .andExpect(jsonPath("$.content", hasSize(3)))
                 .andExpect(jsonPath("$.totalElements").value(3));
     }
+
+    @Test
+    void listCanBeSortedByAnAllowedProperty() throws Exception {
+        for (String amount : List.of("10.00", "30.00", "20.00")) {
+            repository.save(new Transaction(
+                    UUID.randomUUID(), CLIENT, "card-s", "cust-s",
+                    new BigDecimal(amount), "EUR", "5411", "PL",
+                    null, Instant.parse("2026-06-10T08:00:00Z")
+            ));
+        }
+
+        mockMvc.perform(get("/api/v1/transactions").param("sort", "amount,desc")
+                        .with(client(CLIENT, "transactions:read")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(3)))
+                .andExpect(jsonPath("$.content[0].amount").value(30.00))
+                .andExpect(jsonPath("$.content[2].amount").value(10.00));
+    }
+
+    @Test
+    void listRejectsUnknownAndNonSortableProperties() throws Exception {
+        // An unknown name used to bubble up as an unhandled exception (HTTP 500);
+        // identifiers are deliberately not sortable either.
+        for (String property : List.of("doesNotExist", "cardId", "clientId", "customerId")) {
+            mockMvc.perform(get("/api/v1/transactions").param("sort", property + ",asc")
+                            .with(client(CLIENT, "transactions:read")))
+                    .andExpect(status().isBadRequest());
+        }
+    }
 }
