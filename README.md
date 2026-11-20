@@ -91,23 +91,37 @@ scoring distributions over time and raises alerts when distributional drift exce
 > Status: stage 1 in progress. After stage 1 lands, the orchestrator + Postgres + Redis are runnable.
 
 ```bash
-# 1. Copy environment defaults
+# 1. Copy environment defaults and fill in the REQUIRED values in .env:
+#    POSTGRES_PASSWORD and REDIS_PASSWORD (no defaults; generate with
+#    python -c "import secrets; print(secrets.token_urlsafe(24))"),
+#    FRAUDFORT_JWT_ISSUER_URI and FRAUDFORT_JWT_AUDIENCE (your identity provider).
 cp .env.example .env
 
 # 2. Bring up infra (Postgres + Redis)
 docker compose up -d
 
-# 3. Run the orchestrator (from services/orchestrator/)
+# 3. Run the orchestrator (from services/orchestrator/). Spring does not read .env,
+#    so export the variables first; it refuses to start without the required ones.
+set -a; source ../../.env; set +a
 ./gradlew bootRun
 
 # 4. Health check
 curl http://localhost:8080/actuator/health
 
-# 5. Create a transaction
+# 5. Create a transaction. The API is an OAuth2 resource server: send a bearer token
+#    from your identity provider that carries the scope transactions:write.
 curl -X POST http://localhost:8080/api/v1/transactions \
+  -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"cardId":"4111111111111111","customerId":"c-001","amount":129.90,"currency":"EUR","merchantCategory":"5411","country":"PL","deviceId":"dev-abc","timestamp":"2026-06-10T12:34:56Z"}'
+  -d '{"cardId":"tok_card_8f3a91","customerId":"c-001","amount":129.90,"currency":"EUR","merchantCategory":"5411","country":"PL","deviceId":"dev-abc","occurredAt":"2026-06-10T12:34:56Z"}'
 ```
+
+> **Data handling:** `cardId` (like `customerId` and `deviceId`) is stored, indexed and
+> returned verbatim; the service neither validates nor masks it. Send a token or salted
+> hash that identifies the card — never the card number (PAN).
+>
+> `GET /api/v1/transactions` accepts `?sort=` only for `amount`, `currency`, `country`,
+> `merchantCategory`, `occurredAt` and `createdAt`; other properties return `400`.
 
 ---
 

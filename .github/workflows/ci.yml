@@ -1,16 +1,25 @@
 name: CI
 
+# Gałęzie robocze testuje zdarzenie pull_request; `push` na każdej gałęzi
+# uruchamiał ten sam zestaw (w tym testy z Testcontainers) drugi raz.
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
 
 permissions:
   contents: read
 
+# Nowy push do PR-a anuluje przebieg, który i tak jest już nieaktualny.
+# Przebiegi na main nie są anulowane, żeby każdy commit miał pełny wynik.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   orchestrator:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: services/orchestrator
@@ -27,6 +36,7 @@ jobs:
 
   scoring:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: services/scoring
