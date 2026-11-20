@@ -31,9 +31,10 @@ public class TransactionService {
      * own transaction. The score itself is not persisted yet — that arrives with the
      * decision record in stage 3.
      */
-    public ScoredTransaction create(CreateTransactionRequest request) {
+    public ScoredTransaction create(CreateTransactionRequest request, ClientPrincipal client) {
         Transaction transaction = new Transaction(
                 UUID.randomUUID(),
+                client.clientId(),
                 request.cardId(),
                 request.customerId(),
                 request.amount(),
@@ -49,12 +50,18 @@ public class TransactionService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Transaction> findById(UUID id) {
-        return repository.findById(id);
+    public Optional<Transaction> findById(UUID id, ClientPrincipal client) {
+        // Object-level authorization in the query itself: a client never loads another
+        // client's row, so "exists but forbidden" and "does not exist" are both 404.
+        return client.analyst()
+                ? repository.findById(id)
+                : repository.findByIdAndClientId(id, client.clientId());
     }
 
     @Transactional(readOnly = true)
-    public Page<Transaction> list(Pageable pageable) {
-        return repository.findAll(pageable);
+    public Page<Transaction> list(Pageable pageable, ClientPrincipal client) {
+        return client.analyst()
+                ? repository.findAll(pageable)
+                : repository.findAllByClientId(client.clientId(), pageable);
     }
 }

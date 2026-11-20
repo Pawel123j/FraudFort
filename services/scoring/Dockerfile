@@ -19,6 +19,11 @@ RUN uv sync --frozen --no-dev
 
 COPY app ./app
 
+# Proces bez uprawnień roota (FF-04).
+RUN useradd --system --uid 10001 --no-create-home --shell /usr/sbin/nologin scoring \
+    && chown -R 10001:10001 /app
+USER 10001:10001
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=5 \

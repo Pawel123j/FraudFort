@@ -18,6 +18,10 @@ public class Transaction {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
+    /** API client (JWT subject) that submitted the transaction; drives read authorization. */
+    @Column(name = "client_id", nullable = false, updatable = false, length = 255)
+    private String clientId;
+
     @Column(name = "card_id", nullable = false, length = 64)
     private String cardId;
 
@@ -50,6 +54,7 @@ public class Transaction {
     }
 
     public Transaction(UUID id,
+                       String clientId,
                        String cardId,
                        String customerId,
                        BigDecimal amount,
@@ -59,6 +64,7 @@ public class Transaction {
                        String deviceId,
                        Instant occurredAt) {
         this.id = id;
+        this.clientId = clientId;
         this.cardId = cardId;
         this.customerId = customerId;
         this.amount = amount;
@@ -78,6 +84,10 @@ public class Transaction {
 
     public UUID getId() {
         return id;
+    }
+
+    public String getClientId() {
+        return clientId;
     }
 
     public String getCardId() {

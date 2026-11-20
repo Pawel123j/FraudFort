@@ -79,7 +79,8 @@ class ScoringClientTest {
 
     private Transaction sampleTransaction() {
         return new Transaction(
-                UUID.randomUUID(), "card-9", "cust-9",
+                UUID.randomUUID(),
+                "client-test", "card-9", "cust-9",
                 new BigDecimal("7500.00"), "EUR", "7995", "PL",
                 null, Instant.parse("2026-06-10T02:30:00Z"));
     }

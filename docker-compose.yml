@@ -2,6 +2,8 @@
 # Versions are floated to majors here; pin to specific patches in stage 8 (deploy).
 name: fraudfort
 
+# Usługi publikowane tylko na 127.0.0.1; hasła wymagane (brak wartości domyślnych) — FF-03.
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -10,9 +12,9 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-fraudfort}
       POSTGRES_USER: ${POSTGRES_USER:-fraudfort}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-fraudfort_dev}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -27,9 +29,11 @@ services:
     image: redis:7.4-alpine
     container_name: fraudfort-redis
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}"]
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}
     ports:
-      - "${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
@@ -47,7 +51,7 @@ services:
     container_name: fraudfort-scoring
     restart: unless-stopped
     ports:
-      - "${SCORING_PORT:-8000}:8000"
+      - "127.0.0.1:${SCORING_PORT:-8000}:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
       interval: 10s
